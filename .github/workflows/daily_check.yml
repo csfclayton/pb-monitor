@@ -1,48 +1,17 @@
-name: Daily P-Bandai Check
+name: Daily P-Bandai Telegram Notify
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 每天香港時間 08:00 執行
-  workflow_dispatch: # 允許手動執行
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
-  build:
+  notify:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # 確保有權限寫入檔案回到 GitHub
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4 # 升級到 v4 解決 Warning
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4 # 升級到 v4 解決 Warning
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Install Puppeteer
-        run: npm install puppeteer
-
-      - name: Run Scraper
-        run: node scrape.js
-        env:
-          TG_TOKEN: ${{ secrets.TG_TOKEN }}      # 從保險箱拎出來
-          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}  # 從保險箱拎出來
-
-      - name: Commit and Push CSV
-        run: |
-          git config --global user.name "PB-Bot"
-          git config --global user.email "bot@github.com"
-          
-          # 強制對齊遠端版本，解決 "rejected" 問題
-          git fetch origin main
-          git reset --soft origin/main
-          
-          git add pb_updates.csv
-          
-          # 檢查是否有內容需要更新
-          if git diff --staged --quiet; then
-            echo "沒有新商品，跳過"
-          else
-            git commit -m "Auto-update P-Bandai list: $(date)"
-            git push origin main
-          fi
+      - run: npm install puppeteer
+      - run: node scrape.js
