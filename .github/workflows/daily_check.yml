@@ -27,16 +27,20 @@ jobs:
 
       - name: Commit and Push CSV
         run: |
+          # 1. 基本設定
           git config --global user.name "PB-Bot"
           git config --global user.email "bot@github.com"
-          git add pb_updates.csv
           
-          # 檢查是否有變動
+          # 2. 先更新遠端資訊，確保知道最新的 commit
+          git fetch origin main
+          
+          # 3. 檢查是否有變動
+          git add pb_updates.csv
           if git diff --staged --quiet; then
             echo "沒有新商品，跳過 Commit"
           else
-            # 關鍵：先拉取遠端變更，避免衝突
-            git pull --rebase origin main
+            # 4. 強制將遠端最新的改動合併進來 (使用策略解決衝突)
             git commit -m "Auto-update P-Bandai list: $(date)"
+            git pull --rebase origin main
             git push origin main
           fi
