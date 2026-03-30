@@ -39,14 +39,24 @@ async function sendTelegram(message) {
         
         const products = await page.evaluate(() => {
             const items = Array.from(document.querySelectorAll('.m-card'));
-            return items.map(item => ({
-                name: item.querySelector('.m-card__title')?.innerText.trim() || "",
-                link: item.querySelector('a')?.href || ""
-            })).filter(p => {
-                const n = p.name.toUpperCase();
-                return n.includes('MG') || n.includes('METAL BUILD');
-            });
-        });
+            
+            // 將原本的 filter 註解掉，改成下面這行（抓取前 3 件商品，不管是什麼）
+return items.slice(0, 3).map(item => ({
+    name: item.querySelector('.m-card__title')?.innerText.trim() || "測試商品",
+    link: item.querySelector('a')?.href || ""
+}));
+// .filter(p => p.name.includes('MG') ...); // 暫時不用 filter
+            
+            
+            
+            //return items.map(item => ({
+            //    name: item.querySelector('.m-card__title')?.innerText.trim() || "",
+            //    link: item.querySelector('a')?.href || ""
+            //})).filter(p => {
+            //    const n = p.name.toUpperCase();
+            //    return n.includes('MG') || n.includes('METAL BUILD');
+            //});
+       // });
 
         if (products.length > 0) {
             let msg = `<b>🤖 P-Bandai 巡邏報告</b>\n發現 ${products.length} 件目標新貨：\n\n`;
