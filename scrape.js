@@ -11,7 +11,7 @@ const puppeteer = require('puppeteer');
 
     try {
         console.log("正在開啟 P-Bandai 網頁...");
-        await page.goto('https://p-bandai.com/hk/search?limit=20&offset=0&sortType=NewArrival', { 
+        await page.goto('https://p-bandai.com/hk/shop/tamashiiwebshop', { 
             waitUntil: 'networkidle2', timeout: 90000 
         });
         
