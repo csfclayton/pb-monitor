@@ -1,10 +1,7 @@
 const puppeteer = require('puppeteer');
 const https = require('https');
 
-// 填入你喺 Telegram 攞到嘅資料
-const TELEGRAM_TOKEN = '8726571054:AAGIZJ4OrHmzVFHnAZ-MroaSkqh6WgUJ4FM';
-const CHAT_ID = '193456672';
-
+v
 async function sendTelegram(message) {
     const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
     return new Promise((resolve) => {
