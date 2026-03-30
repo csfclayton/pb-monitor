@@ -1,28 +1,47 @@
-name: Daily P-Bandai Notify
+name: P-Bandai Issue Notify
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 每日香港時間 08:00
-  workflow_dispatch: # 畀你手動測試
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
-  check-and-notify:
+  check:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write # 確保有權限開 Issue
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
+      - run: npm install puppeteer
+      
+      - name: Run Scraper and Capture Output
+        id: scraper
+        run: |
+          # 執行爬蟲並將結果存入變數
+          OUTPUT=$(node scrape.js)
+          
+          # 提取 FOUND_ITEMS 之間嘅內容
+          if echo "$OUTPUT" | grep -q "FOUND_ITEMS_START"; then
+            CONTENT=$(echo "$OUTPUT" | sed -n '/FOUND_ITEMS_START/,/FOUND_ITEMS_END/p' | sed '1d;$d')
+            # 處理多行文字傳輸到下一步
+            echo "items<<EOF" >> $GITHUB_OUTPUT
+            echo "$CONTENT" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Install Puppeteer
-        run: npm install puppeteer
-
-      - name: Run Scraper
-        # 呢度係將 Secrets 傳入程式嘅關鍵
-        env:
-          TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
-        run: node scrape.js
+      - name: Create GitHub Issue
+        if: steps.scraper.outputs.found == 'true'
+        uses: imjohnotter/create-issue@v1
+        with:
+          title: "📢 P-Bandai 新貨預報: $(date +'%Y-%m-%d')"
+          content: |
+            發現以下 MG / Metal Build 商品：
+            
+            ${{ steps.scraper.outputs.items }}
+          token: ${{ secrets.GITHUB_TOKEN }} # 呢個係內建嘅，唔使你自己入
