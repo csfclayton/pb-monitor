@@ -30,12 +30,16 @@ jobs:
           git config --global user.name "PB-Bot"
           git config --global user.email "bot@github.com"
           
-          # 檢查是否有檔案變動
+          # 強制對齊遠端版本，解決 "rejected" 問題
+          git fetch origin main
+          git reset --soft origin/main
+          
           git add pb_updates.csv
+          
+          # 檢查是否有內容需要更新
           if git diff --staged --quiet; then
             echo "沒有新商品，跳過"
           else
             git commit -m "Auto-update P-Bandai list: $(date)"
-            # 使用 --force 強制推送到 main 分支，無視版本衝突
-            git push origin main --force
+            git push origin main
           fi
