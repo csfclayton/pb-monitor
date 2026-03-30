@@ -1,22 +1,28 @@
-name: Daily P-Bandai Telegram Notify
+name: Daily P-Bandai Notify
 
 on:
   schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+    - cron: '0 0 * * *' # 每日香港時間 08:00
+  workflow_dispatch: # 畀你手動測試
 
 jobs:
-  notify:
+  check-and-notify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install puppeteer
-      - run: node scrape.js
+
+      - name: Install Puppeteer
+        run: npm install puppeteer
+
       - name: Run Scraper
-        run: node scrape.js
+        # 呢度係將 Secrets 傳入程式嘅關鍵
         env:
-          TG_TOKEN: ${{ secrets.TG_TOKEN }}      # 從保險箱拎出來
-          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}  # 從保險箱拎出來
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: node scrape.js
