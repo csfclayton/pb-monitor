@@ -15,3 +15,8 @@ jobs:
           node-version: '20'
       - run: npm install puppeteer
       - run: node scrape.js
+      - name: Run Scraper
+        run: node scrape.js
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}      # 從保險箱拎出來
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}  # 從保險箱拎出來
