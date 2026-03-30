@@ -29,11 +29,12 @@ jobs:
         run: |
           git config --global user.name "PB-Bot"
           git config --global user.email "bot@github.com"
-          # 檢查是否有檔案變動，避免 exit code 128
           git add pb_updates.csv
           if git diff --staged --quiet; then
             echo "沒有新商品，跳過 Commit"
           else
+            # 先拉取遠端更新，避免衝突
+            git pull --rebase origin main
             git commit -m "Auto-update P-Bandai list: $(date)"
-            git push
+            git push origin main
           fi
