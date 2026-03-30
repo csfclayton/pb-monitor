@@ -30,10 +30,12 @@ jobs:
           git config --global user.name "PB-Bot"
           git config --global user.email "bot@github.com"
           git add pb_updates.csv
+          
+          # 檢查是否有變動
           if git diff --staged --quiet; then
             echo "沒有新商品，跳過 Commit"
           else
-            # 先拉取遠端更新，避免衝突
+            # 關鍵：先拉取遠端變更，避免衝突
             git pull --rebase origin main
             git commit -m "Auto-update P-Bandai list: $(date)"
             git push origin main
