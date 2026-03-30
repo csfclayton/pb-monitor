@@ -1,7 +1,15 @@
 const puppeteer = require('puppeteer');
 const https = require('https');
 
-v
+// 修改 scrape.js 開頭部分
+const TELEGRAM_TOKEN = process.env.TG_TOKEN; // 讀取 GitHub Secret
+const CHAT_ID = process.env.TG_CHAT_ID;     // 讀取 GitHub Secret
+
+if (!TELEGRAM_TOKEN || !CHAT_ID) {
+    console.error("錯誤：未找到 Telegram 設定。");
+    process.exit(1);
+}
+
 async function sendTelegram(message) {
     const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
     return new Promise((resolve) => {
